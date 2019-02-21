@@ -8,7 +8,7 @@ This tool takes the minimum and maximum speeds, as well as min and max packet le
 
 Script assumes that all of the given serial devices are in the same bus. It tests TX and RX of each device on each speed and packet length to determine combination that works for all devices in the network.
 
-# Usage
+## Usage
 
 1. Change the serial device paths to match your devices and set the limits according to your hardware.
 
