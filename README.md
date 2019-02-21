@@ -1,4 +1,4 @@
-# serial_stresstest
+# Serial Stresstest
 
 Got new hardware, something that shows up as a serial device and talks to another serial device?
 
