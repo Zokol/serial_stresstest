@@ -13,7 +13,4 @@ Script assumes that all of the given serial devices are in the same bus. It test
 1. Change the serial device paths to match your devices and set the limits according to your hardware.
 
 2. Run the script:
-
-'''
-python run.py
-'''
+`python run.py`
