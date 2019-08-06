@@ -10,6 +10,7 @@ import string
 import random
 import zlib
 import time
+from statistics import mean
 
 
 class tester():
@@ -49,18 +50,16 @@ class tester():
 
         for sender in self.serials:
 
-            #print(sender, "sending:", packet)
             start = time.perf_counter()
             sender.write((packet + "\r\n").encode("UTF-8"))
 
             for receiver in self.serials:
 
-                if sender == receiver:
+                if sender == receiver and len(self.serials) > 1:
                     continue
 
                 rx_packet = receiver.readline().decode("UTF-8")
                 end = time.perf_counter() - start
-                #print("Received:", rx_packet)
 
                 rx_crc = rx_packet[length:].strip()
                 assert rx_crc == crc
@@ -156,7 +155,44 @@ def test_for_length(device_paths, speed=9600, min_length=100, max_length=1 * 10*
     return last_working_length
 
 
+def test_for_delay(device_paths, speed=9600, length=100, number_of_samples=10):
+    """
+    test_for_delay
+
+    Runs several samples with given speed and packet length to find average delay between send and receive
+
+    Args:
+        device_paths (list of strings): Paths to the serial devices to be used in testing
+        speed (int): Baudrate used in transmission test
+        length (int): Transmission packet length
+        number_of_samples (int): Number of samples to be taken
+
+    Returns:
+        int: Maximum delay from all transmission samples
+    """
+
+    delays = []
+    try:
+        for i in range(number_of_samples):
+            print("Testing comms for packet length:", length, "with speed:", speed)
+            t = tester(device_paths, speed)
+            s = time.time()
+            t.test_transmission(length)
+            delays.append(int((time.time - s) * 1000))
+            t.close()
+    except AssertionError:
+        continue
+    except Exception as e:
+        break
+    print("Maximum delay:", max(delays), "ms")
+    print("Average delay:", mean(delays), "ms")
+    print("Minimum delay:", min(delays), "ms")
+
+    return mean(delays)
+
+
 if __name__ == '__main__':
     device_paths = ["COM16", "COM19"]
     max_speed = test_for_speed(device_paths, length=2000)
-    test_for_length(device_paths, speed=max_speed)
+    max_length = test_for_length(device_paths, speed=max_speed)
+    avg_delay = test_for_delay(device_paths, speed=max_speed)
