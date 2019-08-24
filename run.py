@@ -41,12 +41,13 @@ class tester():
             length (int): Length of the random ASCII string to be sent as a payload
 
         Returns:
-            bool: If test is complete, returns True
+            list of floats: delays of each transmission
 
         """
         payload = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
         crc = hex(zlib.crc32(payload.encode("UTF-8")) & 0xffffffff)
         packet = payload + crc
+        delays = []
 
         for sender in self.serials:
 
@@ -60,11 +61,14 @@ class tester():
 
                 rx_packet = receiver.readline().decode("UTF-8")
                 end = time.perf_counter() - start
+                delays.append(end)
 
                 rx_crc = rx_packet[length:].strip()
                 assert rx_crc == crc
 
-                print("RX OK, delay: " + "{0:.3f}".format(end) + "ms")
+                #print("RX OK, delay: " + "{0:.3f}".format(end * 1000) + "ms")
+
+        return delays
 
     def close(self):
         """
@@ -99,7 +103,7 @@ def test_for_speed(device_paths, length=2000, min_speed=9600, max_speed=12 * 10*
             break
         try:
             for speed in range(min_speed, max_speed, int(max_speed / min_speed)):
-                print("Testing for speed:", speed, "with packet length:", length)
+                #print("Testing for speed:", speed, "with packet length:", length)
                 t = tester(device_paths, speed)
                 t.test_transmission(length)
                 t.close()
@@ -139,7 +143,7 @@ def test_for_length(device_paths, speed=9600, min_length=100, max_length=1 * 10*
             break
         try:
             for length in range(min_length, max_length, int(max_length / min_length)):
-                print("Testing comms for packet length:", length, "with speed:", speed)
+                #print("Testing comms for packet length:", length, "with speed:", speed)
                 t = tester(device_paths, speed)
                 t.test_transmission(length)
                 t.close()
@@ -168,22 +172,21 @@ def test_for_delay(device_paths, speed=9600, length=100, number_of_samples=10):
         number_of_samples (int): Number of samples to be taken
 
     Returns:
-        int: Maximum delay from all transmission samples
+        int: Average delay from all transmission samples
     """
 
     delays = []
     try:
         for i in range(number_of_samples):
-            print("Testing comms for packet length:", length, "with speed:", speed)
+            #print("Testing comms for packet length:", length, "with speed:", speed)
             t = tester(device_paths, speed)
-            s = time.time()
-            t.test_transmission(length)
-            delays.append(int((time.time - s) * 1000))
+            d = t.test_transmission(length)
+            delays += d
             t.close()
     except AssertionError:
-        continue
+        mean(delays)
     except Exception as e:
-        break
+        mean(delays)
     print("Maximum delay:", max(delays), "ms")
     print("Average delay:", mean(delays), "ms")
     print("Minimum delay:", min(delays), "ms")
@@ -192,7 +195,16 @@ def test_for_delay(device_paths, speed=9600, length=100, number_of_samples=10):
 
 
 if __name__ == '__main__':
-    device_paths = ["COM16", "COM19"]
-    max_speed = test_for_speed(device_paths, length=2000)
-    max_length = test_for_length(device_paths, speed=max_speed)
-    avg_delay = test_for_delay(device_paths, speed=max_speed)
+    #serials = ["COM16", "COM19"]
+    serials = ["COM15"]
+    max_speed = test_for_speed(serials, length=2000)
+    print("Maximum known working speed:", max_speed)
+
+    max_length = test_for_length(serials, speed=max_speed)
+    print("Maximum known working length:", max_length)
+
+    avg_delay = test_for_delay(serials, speed=max_speed, length=10)
+    print("Average delay:", avg_delay, "ms with packet length 10")
+
+    avg_delay = test_for_delay(serials, speed=max_speed, length=max_length)
+    print("Average delay:", avg_delay, "ms with packet length", max_length)
