@@ -44,7 +44,7 @@ class tester():
             list of floats: delays of each transmission
 
         """
-        payload = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+        payload = ''.join(random.choice(string.ascii_uppercase + string.digits, k=length))
         crc = hex(zlib.crc32(payload.encode("UTF-8")) & 0xffffffff)
         packet = payload + crc
         delays = []
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Runs serial test')
-    parser.add_argument('serials', metavar='N', type=str, nargs='+', help="Serial devices to be tested. Example; Windows: run.py COM10 COM11, Linux: run.py /dev/ttyUSB0 /dev/ttyUSB1")
+    parser.add_argument('serials', metavar='serials', type=str, nargs='+', help="Serial devices to be tested. Example; Windows: run.py COM10 COM11, Linux: run.py /dev/ttyUSB0 /dev/ttyUSB1")
 
     args = parser.parse_args()
 
