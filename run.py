@@ -195,8 +195,17 @@ def test_for_delay(device_paths, speed=9600, length=100, number_of_samples=10):
 
 
 if __name__ == '__main__':
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Runs serial test')
+    parser.add_argument('serials', metavar='N', type=str, nargs='+', help="Serial devices to be tested. Example; Windows: run.py COM10 COM11, Linux: run.py /dev/ttyUSB0 /dev/ttyUSB1")
+
+    args = parser.parse_args()
+
     #serials = ["COM16", "COM19"]
-    serials = ["COM15"]
+    #serials = ["COM15"]
+    serials = args.serials
     max_speed = test_for_speed(serials, length=2000)
     print("Maximum known working speed:", max_speed)
 
