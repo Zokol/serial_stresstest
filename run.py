@@ -217,10 +217,12 @@ if __name__ == '__main__':
     max_length = test_for_length(serials, speed=max_speed)
     print("Maximum known working length:", max_length)
 
-    print("Testing for transmission delay")
+    print("Testing for transmission delay with 10B packet")
 
     avg_delay = test_for_delay(serials, speed=max_speed, length=10)
     print("Average delay:", avg_delay, "ms with packet length 10B")
+
+    print("Testing for transmission delay with " + str(max_length) + "B packet")
 
     avg_delay = test_for_delay(serials, speed=max_speed, length=max_length)
     print("Average delay:", avg_delay, "ms with packet length", max_length)
