@@ -44,7 +44,7 @@ class tester():
             list of floats: delays of each transmission
 
         """
-        payload = ''.join(random.choice(string.ascii_uppercase + string.digits, k=length))
+        payload = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
         crc = hex(zlib.crc32(payload.encode("UTF-8")) & 0xffffffff)
         packet = payload + crc
         delays = []
