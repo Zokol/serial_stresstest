@@ -206,14 +206,21 @@ if __name__ == '__main__':
     #serials = ["COM16", "COM19"]
     #serials = ["COM15"]
     serials = args.serials
+
+    print("Testing for maximum speed")
+
     max_speed = test_for_speed(serials, length=2000)
     print("Maximum known working speed:", max_speed)
+
+    print("Testing for maximum packet length")
 
     max_length = test_for_length(serials, speed=max_speed)
     print("Maximum known working length:", max_length)
 
+    print("Testing for transmission delay")
+
     avg_delay = test_for_delay(serials, speed=max_speed, length=10)
-    print("Average delay:", avg_delay, "ms with packet length 10")
+    print("Average delay:", avg_delay, "ms with packet length 10B")
 
     avg_delay = test_for_delay(serials, speed=max_speed, length=max_length)
     print("Average delay:", avg_delay, "ms with packet length", max_length)
